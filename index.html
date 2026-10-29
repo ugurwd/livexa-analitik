@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>LIVEXA Analitik</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23221A4A'/%3E%3Cpath d='M8 22V10h3v9h6v3zM19 22l4-6-4-6h3.5l2.2 3.6L27 10h0' fill='%23FFF4DF'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="panel.css">
+</head>
+<body>
+<div class="viz-root">
+<header class="ust">
+  <div class="ust__marka"><span class="logo">LIVE<span class="x">X</span>A</span><span class="ust__ad">Analitik</span></div>
+  <div class="filtre" role="group" aria-label="Tarih aralığı">
+    <button type="button" data-aralik="bugun">Bugün</button>
+    <button type="button" data-aralik="dun">Dün</button>
+    <button type="button" data-aralik="7" class="etkin">7 gün</button>
+    <button type="button" data-aralik="30">30 gün</button>
+    <button type="button" data-aralik="ay">Bu ay</button>
+    <button type="button" data-aralik="tum">Tümü</button>
+    <label class="tarih"><span class="gorunmez">Başlangıç</span><input type="date" id="f-bas"></label>
+    <label class="tarih"><span class="gorunmez">Bitiş</span><input type="date" id="f-son"></label>
+  </div>
+  <div class="filtre">
+    <label>Kanal <select id="f-kanal"><option value="">Tüm kanallar</option></select></label>
+    <label class="anahtar"><input type="checkbox" id="f-test"> Test verisi</label>
+    <button type="button" id="yenile" class="ikincil">Yenile</button>
+    <span class="guncel" id="guncel" aria-live="polite"></span>
+  </div>
+</header>
+
+<main>
+  <section class="kpi" id="kpi" aria-label="Özet"></section>
+
+  <section class="kart">
+    <h2>Satış hunisi</h2>
+    <p class="aciklama">Adımlar toplu sayaçtır: aynı kişi bir adımı birden çok kez yapabilir. Yüzde, bir önceki adıma göredir.</p>
+    <div id="huni"></div>
+  </section>
+
+  <div class="iki">
+    <section class="kart">
+      <h2>Günlük ziyaret</h2>
+      <div id="g-ziyaret" class="grafik"></div>
+    </section>
+    <section class="kart">
+      <h2>Günlük satın alma</h2>
+      <p class="aciklama">Ödeme başarılı sayfasına dönüşler (kanala bağlanabilen satın almalar).</p>
+      <div id="g-satis" class="grafik"></div>
+    </section>
+  </div>
+
+  <section class="kart">
+    <h2>Kanallar</h2>
+    <p class="aciklama">Ciro, satın alma sayfasına dönen paketlerden hesaplanır (1 kutu 2.900 TL, 2'li paket 5.500 TL). Harcama girilen kanallarda sipariş başı maliyet ve ROAS görünür.</p>
+    <div class="tablo-sarmal"><table id="t-kanal" class="tablo"></table></div>
+  </section>
+
+  <section class="kart">
+    <h2>Kampanyalar</h2>
+    <p class="aciklama">UTM etiketli bağlantılardan gelenler: kaynak / ortam / kampanya / içerik.</p>
+    <div class="tablo-sarmal"><table id="t-kampanya" class="tablo"></table></div>
+  </section>
+
+  <section class="kart">
+    <h2>Siparişler</h2>
+    <p class="aciklama">Ödeme altyapısının kayıtlarından. Alıcı adı, adresi ve iletişim bilgisi bu panele gelmez.</p>
+    <div class="kpi kpi--kucuk" id="s-ozet"></div>
+    <div class="tablo-sarmal"><table id="t-siparis" class="tablo"></table></div>
+  </section>
+
+  <section class="kart" id="promo">
+    <h2>Promosyon kodları</h2>
+    <p class="aciklama">Kod satın al sayfasındaki "Promosyon kodu" alanına yazılır. İndirim ödeme altyapısında hesaplanır; kullanım sayısı ödeme tamamlanınca artar. Kapatılan kod hemen geçersiz olur.</p>
+    <form id="promo-form" class="form form--satir">
+      <label>Kod <input name="kod" required maxlength="24" placeholder="LIVEXA10" autocomplete="off"></label>
+      <label>İndirim türü <select name="tip"><option value="yuzde">Yüzde (%)</option><option value="tutar">Sabit tutar (TL)</option></select></label>
+      <label>İndirim <input name="deger" inputmode="decimal" required placeholder="10"></label>
+      <fieldset class="paketler"><legend>Geçerli paket</legend><label><input type="checkbox" name="p1" checked> 1 kutu</label><label><input type="checkbox" name="p2" checked> 2'li paket</label></fieldset>
+      <label>Başlangıç <input type="date" name="bas"></label>
+      <label>Bitiş <input type="date" name="son"></label>
+      <label>Kullanım sınırı <input name="limit" inputmode="numeric" placeholder="sınırsız"></label>
+      <label>Not <input name="notu" maxlength="120" placeholder="ör. Instagram kasım kampanyası"></label>
+      <button type="submit">Kaydet</button>
+      <p id="promo-sonuc" class="sonuc" aria-live="polite"></p>
+    </form>
+    <div class="tablo-sarmal"><table id="t-promo" class="tablo"></table></div>
+  </section>
+
+  <div class="uc">
+    <section class="kart"><h2>Sayfalar</h2><div id="b-sayfa"></div></section>
+    <section class="kart"><h2>Cihaz</h2><div id="b-cihaz"></div></section>
+    <section class="kart"><h2>İl</h2><div id="b-il"></div></section>
+  </div>
+  <div class="iki">
+    <section class="kart"><h2>Saate göre ziyaret</h2><div id="g-saat" class="grafik"></div></section>
+    <section class="kart"><h2>Yönlendiren siteler</h2><div id="b-yon"></div></section>
+  </div>
+  <div class="iki">
+    <section class="kart"><h2>"Satın al" nereden tıklandı</h2><div id="b-cta"></div></section>
+    <section class="kart"><h2>Görülen bölümler</h2><p class="aciklama">Bölümün en az üçte biri ekrana girdiğinde, sayfa başına bir kez.</p><div id="b-bolum"></div></section>
+  </div>
+
+  <div class="iki">
+    <section class="kart">
+      <h2>Reklam harcaması gir</h2>
+      <form id="harcama" class="form">
+        <label>Gün <input type="date" name="gun" required></label>
+        <label>Kanal <select name="kanal" required></select></label>
+        <label>Tutar (TL) <input type="text" name="tutar" inputmode="decimal" required placeholder="0"></label>
+        <label>Not <input type="text" name="notu" maxlength="120" placeholder="isteğe bağlı"></label>
+        <button type="submit">Kaydet</button>
+        <p class="aciklama">Aynı gün ve kanal için yeniden kaydetmek tutarı günceller; 0 yazmak siler.</p>
+        <p id="harcama-sonuc" class="sonuc" aria-live="polite"></p>
+      </form>
+      <div class="tablo-sarmal"><table id="t-harcama" class="tablo"></table></div>
+    </section>
+    <section class="kart">
+      <h2>Kampanya bağlantısı oluştur</h2>
+      <form id="utm" class="form">
+        <label>Nerede kullanılacak
+          <select name="hazir">
+            <option value="instagram|paid">Instagram reklamı</option>
+            <option value="facebook|paid">Facebook reklamı</option>
+            <option value="google|cpc">Google Ads</option>
+            <option value="instagram|social">Instagram profil / hikâye (organik)</option>
+            <option value="facebook|social">Facebook gönderisi (organik)</option>
+            <option value="whatsapp|message">WhatsApp mesajı</option>
+            <option value="email|email">E-posta</option>
+            <option value="ozel|">Diğer (kaynak ve ortamı yaz)</option>
+          </select></label>
+        <label>Kaynak <input name="kaynak" placeholder="instagram"></label>
+        <label>Ortam <input name="ortam" placeholder="paid"></label>
+        <label>Kampanya adı <input name="kampanya" placeholder="kasim-lansman" required></label>
+        <label>İçerik (reklam/görsel adı) <input name="icerik" placeholder="icinde-ne-var-video"></label>
+        <label>Hedef sayfa
+          <select name="sayfa">
+            <option value="/">Ana sayfa</option>
+            <option value="/satin-al.html">Satın al</option>
+            <option value="/icerik-ve-kullanim.html">İçerik ve kullanım</option>
+            <option value="/sss.html">Sık sorulanlar</option>
+          </select></label>
+        <output id="utm-sonuc" class="bag"></output>
+        <button type="button" id="utm-kopyala">Bağlantıyı kopyala</button>
+        <p class="aciklama">Google Ads'te otomatik etiketleme (gclid) açıksa reklam zaten tanınır; UTM kampanya adını da gösterir. Meta reklamlarında UTM'siz tıklamalar "Meta (etiketsiz)" olarak görünür; reklam ve organik ayrılamaz.</p>
+      </form>
+    </section>
+  </div>
+
+  <section class="kart not">
+    <h2>Nasıl ölçüyoruz</h2>
+    <ul>
+      <li><b>Ziyaret:</b> siteye dışarıdan (reklam, arama, sosyal medya, doğrudan) her giriş. Çerez ve kimlik kullanılmadığı için tekil kişi sayılmaz; aynı kişinin iki ayrı girişi iki ziyarettir.</li>
+      <li><b>Kanal:</b> UTM etiketleri, Google/Meta tıklama işaretinin varlığı ve yönlendiren site adından belirlenir; site içinde bağlantılarla taşınır, tarayıcıya hiçbir şey yazılmaz.</li>
+      <li><b>Satın alma:</b> ödeme başarılı sayfasına dönüş, kanalıyla birlikte. Kesin sipariş ve ciro "Siparişler" bölümündeki ödeme kayıtlarıdır.</li>
+      <li>Reklam engelleyicisi olan ziyaretçiler sayılmayabilir. Bot ve otomatik tarayıcı trafiği sayılmaz.</li>
+      <li>Saklanan: gün, saat, kanal, kampanya etiketleri, sayfa, olay, cihaz türü, il. Saklanmayan: IP, tarayıcı kimliği, ad, e-posta, telefon.</li>
+    </ul>
+  </section>
+</main>
+<div id="giris" class="giris" hidden>
+  <form id="giris-form" class="giris__kutu">
+    <span class="logo">LIVE<span class="x">X</span>A</span>
+    <h1>Analitik</h1>
+    <label>Parola <input type="password" id="giris-parola" autocomplete="current-password" required></label>
+    <p id="giris-hata" class="giris__hata" aria-live="polite"></p>
+    <button type="submit">Giriş</button>
+  </form>
+</div>
+<div id="ipucu" class="ipucu" role="tooltip" hidden></div>
+</div>
+<script src="panel.js"></script>
+</body>
+</html>
